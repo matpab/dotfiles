@@ -1,0 +1,29 @@
+#!{{ lookPath "bash" }}
+set -eufo pipefail
+
+source ~/.config/utils.sh
+
+if ! cmd_exists "brew"; then
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    if cmd_exists "brew"; then
+        print_success "Brew has been successfully installed!"
+        brew analytics off
+    else
+        print_error "Brew not installed."
+    fi
+fi
+
+brew bundle --file=/dev/stdin <<EOF
+{{ range .packages.darwin.taps -}}
+tap {{ . | quote }}
+{{ end -}}
+{{ range .packages.darwin.brews -}}
+brew {{ . | quote }}
+{{ end -}}
+{{ range .packages.darwin.casks -}}
+cask {{ . | quote }}
+{{ end -}}
+{{ range .packages.darwin.vscode -}}
+vscode {{ . | quote }}
+{{ end -}}
+EOF

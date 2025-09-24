@@ -1,0 +1,62 @@
+export ZSH="$HOME/.oh-my-zsh"
+
+ZSH_THEME="agnoster"
+
+plugins=(
+  git
+  dotenv
+  dotnet
+  macos
+  zsh-syntax-highlighting
+  zsh-autosuggestions
+  yarn
+  nvm
+  mvn
+  git-auto-fetch
+  docker
+  docker-compose
+  npm
+  terraform
+  textmate
+  xcode
+)
+
+fpath=(/usr/local/share/zsh-completions:$fpath)
+if type brew &>/dev/null; then
+  FPATH=$(brew --prefix)/share/zsh/site-functions:$FPATH
+
+  autoload -Uz compinit
+  compinit
+fi
+
+source $ZSH/oh-my-zsh.sh
+
+export NVM_DIR="$HOME/.nvm"
+
+{{ if eq .chezmoi.os "darwin" -}}
+
+[ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && . "/opt/homebrew/opt/nvm/nvm.sh"  # This loads nvm
+[ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && . "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"
+[ -f /opt/homebrew/etc/profile.d/autojump.sh ] && . /opt/homebrew/etc/profile.d/autojump.sh
+
+{{ end -}}
+
+prompt_dir() {
+  prompt_segment 39d $CURRENT_FG '%~'
+}
+
+prompt_context() {
+  if [[ "$USER" != "$DEFAULT_USER" || -n "$SSH_CLIENT" ]]; then
+    prompt_segment black default "%(!.%{%F{yellow}%}.)$USER"
+  fi
+}
+
+{{ if eq .chezmoi.os "darwin" -}}
+
+# The following lines have been added by Docker Desktop to enable Docker CLI completions.
+fpath=(/Users/mpabel/.docker/completions $fpath)
+autoload -Uz compinit
+compinit
+# End of Docker CLI completions
+
+{{ end -}}
