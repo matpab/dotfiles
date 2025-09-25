@@ -46,3 +46,12 @@ packages:
       - "redhat.ansible"
       - "redhat.vscode-yaml"
       - "upstash.context7-mcp"
+  ubuntu:
+    apt:
+      - "autojump"
+      - "curl"
+      - "tmux"
+      - "vim"
+      - "wget"
+    snaps: []
+    vscode: []

@@ -1,0 +1,37 @@
+#!/bin/sh
+set -eu
+
+# Template script to set the login shell on Linux (Ubuntu).
+# Usage:
+#   chmod +x ~/.local/share/chezmoi/.chezmoiscripts/linux/set-shell.sh.tmpl
+#   chezmoi run .chezmoiscripts/linux/set-shell.sh.tmpl
+#
+# Edit DESIRED_SHELL below if you want a different shell (for example
+# /usr/bin/fish or /home/linuxbrew/.linuxbrew/bin/zsh).
+
+DESIRED_SHELL="/usr/bin/zsh"
+
+USER="$(whoami)"
+
+# Get current login shell from passwd entry
+current_shell="$(getent passwd "$USER" | cut -d: -f7 || true)"
+
+if [ -n "$current_shell" ] && [ "$current_shell" = "$DESIRED_SHELL" ]; then
+  printf '%s\n' "Shell already set to $DESIRED_SHELL"
+  exit 0
+fi
+
+if [ ! -x "$DESIRED_SHELL" ]; then
+  printf '%s\n' "Warning: $DESIRED_SHELL not found or not executable"
+fi
+
+# Ensure the shell is listed in /etc/shells (required by chsh on many systems)
+if ! grep -Fxq "$DESIRED_SHELL" /etc/shells; then
+  printf '%s\n' "Adding $DESIRED_SHELL to /etc/shells (requires sudo)..."
+  printf '%s\n' "$DESIRED_SHELL" | sudo tee -a /etc/shells >/dev/null
+fi
+
+printf '%s\n' "Changing login shell to $DESIRED_SHELL (may prompt for sudo password)..."
+# Use sudo to change the shell for the current user (works on Ubuntu)
+sudo chsh -s "$DESIRED_SHELL" "$USER"
+printf '%s\n' "Done — please log out and log back in (or start a new session) to see the change."

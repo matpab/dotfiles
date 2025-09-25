@@ -1,0 +1,129 @@
+#!/usr/bin/env bash
+# Template script that installs apt packages listed in packages-apt.txt
+set -euo pipefail
+
+## The packages list is rendered at template time from chezmoi data (packages.yaml).
+## This uses chezmoi templating (Go templates) instead of parsing the file at runtime.
+## Expected chezmoi data structure (packages.yaml):
+## packages:
+##   ubuntu:
+##     apt:
+##       - "curl"
+##       - "git"
+
+# Render package list from chezmoi data into a Bash array. If the data key is missing
+# or empty, this produces an empty array.
+PACKAGES=( {{- with .chezmoi.data.packages.ubuntu.apt }}{{- range . }}"{{ . }}" {{- end }}{{- end }} )
+
+if [ ${#PACKAGES[@]} -eq 0 ]; then
+  echo "Apt package list is empty in chezmoi data; nothing to install."
+  exit 0
+fi
+
+# Filter out packages that are already installed to avoid unnecessary work
+NEEDS_INSTALL=()
+for pkg in "${PACKAGES[@]}"; do
+  # dpkg-query returns status info for installed packages. If installed, skip.
+  if dpkg-query -W -f='${Status}' "$pkg" 2>/dev/null | grep -q "install ok installed"; then
+    echo "Skipping already-installed package: $pkg"
+  else
+    NEEDS_INSTALL+=("$pkg")
+  fi
+done
+
+if [ ${#NEEDS_INSTALL[@]} -eq 0 ]; then
+  echo "All packages from chezmoi data are already installed; nothing to do."
+  exit 0
+fi
+
+echo "Installing apt packages: ${NEEDS_INSTALL[*]}"
+
+# Use sudo if not root
+SUDO=""
+if [ "$EUID" -ne 0 ]; then
+  if command -v sudo >/dev/null 2>&1; then
+    SUDO="sudo"
+  else
+    echo "Not running as root and sudo is not available; aborting."
+    exit 1
+  fi
+fi
+
+export DEBIAN_FRONTEND=noninteractive
+$SUDO apt-get update -y
+$SUDO apt-get install -y --no-install-recommends "${NEEDS_INSTALL[@]}"
+
+# Clean up apt caches to keep container small
+$SUDO apt-get clean
+$SUDO rm -rf /var/lib/apt/lists/*
+
+echo "Apt install complete."
+
+# --- Snap packages (optional) -------------------------------------------------
+# Expected chezmoi data path: .chezmoi.data.packages.ubuntu.snaps
+# Example:
+# packages:
+#   ubuntu:
+#     snap:
+#       - "hello-world"
+#       - "code"   # or other snap names
+SNAPS=( {{- with .chezmoi.data.packages.ubuntu.snaps }}{{- range . }}"{{ . }}" {{- end }}{{- end }} )
+
+if [ ${#SNAPS[@]} -ne 0 ]; then
+  if command -v snap >/dev/null 2>&1; then
+    echo "Installing snap packages: ${SNAPS[*]}"
+    for pkg in "${SNAPS[@]}"; do
+      if snap list "$pkg" >/dev/null 2>&1; then
+        echo "Skipping already-installed snap: $pkg"
+      else
+        echo "Installing snap: $pkg"
+        # `if` ensures a failing install doesn't abort the script because of set -e
+        if $SUDO snap install "$pkg" 2>/dev/null; then
+          :
+        else
+          echo "Normal snap install failed for $pkg; retrying with --classic"
+          $SUDO snap install --classic "$pkg"
+        fi
+      fi
+    done
+  else
+    echo "snap command not found; skipping snap installs: ${SNAPS[*]}"
+  fi
+fi
+
+# --- VS Code extensions (optional) -------------------------------------------
+# Expected chezmoi data path: .chezmoi.data.packages.ubuntu.vscode
+# Example:
+# packages:
+#   ubuntu:
+#     vscode_extensions:
+#       - "ms-python.python"
+#       - "esbenp.prettier-vscode"
+VSCODE_EXTENSIONS=( {{- with .chezmoi.data.packages.ubuntu.vscode }}{{- range . }}"{{ . }}" {{- end }}{{- end }} )
+
+if [ ${#VSCODE_EXTENSIONS[@]} -ne 0 ]; then
+  # Prefer stable `code`, fall back to `code-insiders` if available.
+  CODE_CMD=""
+  if command -v code >/dev/null 2>&1; then
+    CODE_CMD=code
+  elif command -v code-insiders >/dev/null 2>&1; then
+    CODE_CMD=code-insiders
+  fi
+
+  if [ -n "$CODE_CMD" ]; then
+    echo "Installing VS Code extensions using $CODE_CMD: ${VSCODE_EXTENSIONS[*]}"
+    # capture installed extensions once
+    INSTALLED_EXTS=$($CODE_CMD --list-extensions 2>/dev/null || true)
+    for ext in "${VSCODE_EXTENSIONS[@]}"; do
+      if echo "$INSTALLED_EXTS" | grep -xF "$ext" >/dev/null 2>&1; then
+        echo "Skipping already-installed VS Code extension: $ext"
+      else
+        echo "Installing VS Code extension: $ext"
+        # Install per-user (do not use sudo)
+        $CODE_CMD --install-extension "$ext" || echo "Failed to install extension $ext via $CODE_CMD"
+      fi
+    done
+  else
+    echo "VS Code CLI (code / code-insiders) not found; skipping extension installs: ${VSCODE_EXTENSIONS[*]}"
+  fi
+fi
