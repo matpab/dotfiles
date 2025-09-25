@@ -14,7 +14,7 @@ set -euo pipefail
 
 # Render package list from chezmoi data into a Bash array. If the data key is missing
 # or empty, this produces an empty array.
-PACKAGES=( {{- with .chezmoi.data.packages.ubuntu.apt }}{{- range . }}"{{ . }}" {{- end }}{{- end }} )
+PACKAGES=( {{- with .packages.ubuntu.apt }}{{- range . }}"{{ . }}" {{- end }}{{- end }} )
 
 if [ ${#PACKAGES[@]} -eq 0 ]; then
   echo "Apt package list is empty in chezmoi data; nothing to install."
@@ -61,14 +61,14 @@ $SUDO rm -rf /var/lib/apt/lists/*
 echo "Apt install complete."
 
 # --- Snap packages (optional) -------------------------------------------------
-# Expected chezmoi data path: .chezmoi.data.packages.ubuntu.snaps
+# Expected chezmoi data path: .packages.ubuntu.snaps
 # Example:
 # packages:
 #   ubuntu:
 #     snap:
 #       - "hello-world"
 #       - "code"   # or other snap names
-SNAPS=( {{- with .chezmoi.data.packages.ubuntu.snaps }}{{- range . }}"{{ . }}" {{- end }}{{- end }} )
+SNAPS=( {{- with .packages.ubuntu.snaps }}{{- range . }}"{{ . }}" {{- end }}{{- end }} )
 
 if [ ${#SNAPS[@]} -ne 0 ]; then
   if command -v snap >/dev/null 2>&1; then
@@ -93,14 +93,14 @@ if [ ${#SNAPS[@]} -ne 0 ]; then
 fi
 
 # --- VS Code extensions (optional) -------------------------------------------
-# Expected chezmoi data path: .chezmoi.data.packages.ubuntu.vscode
+# Expected chezmoi data path: .packages.ubuntu.vscode
 # Example:
 # packages:
 #   ubuntu:
 #     vscode_extensions:
 #       - "ms-python.python"
 #       - "esbenp.prettier-vscode"
-VSCODE_EXTENSIONS=( {{- with .chezmoi.data.packages.ubuntu.vscode }}{{- range . }}"{{ . }}" {{- end }}{{- end }} )
+VSCODE_EXTENSIONS=( {{- with .packages.ubuntu.vscode }}{{- range . }}"{{ . }}" {{- end }}{{- end }} )
 
 if [ ${#VSCODE_EXTENSIONS[@]} -ne 0 ]; then
   # Prefer stable `code`, fall back to `code-insiders` if available.
