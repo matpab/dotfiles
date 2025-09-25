@@ -14,7 +14,7 @@ set -euo pipefail
 
 # Render package list from chezmoi data into a Bash array. If the data key is missing
 # or empty, this produces an empty array.
-PACKAGES=( {{- with .packages.ubuntu.apt }}{{- range . }}"{{ . }}" {{- end }}{{- end }} )
+PACKAGES=( {{- with .packages.ubuntu.apt }}{{- range . }}"{{ . }} " {{- end }}{{- end }} )
 
 if [ ${#PACKAGES[@]} -eq 0 ]; then
   echo "Apt package list is empty in chezmoi data; nothing to install."
@@ -52,7 +52,7 @@ fi
 
 export DEBIAN_FRONTEND=noninteractive
 $SUDO apt-get update -y
-$SUDO apt-get install -y --no-install-recommends "${NEEDS_INSTALL[@]}"
+$SUDO apt-get install -y --no-install-recommends ${NEEDS_INSTALL[@]}
 
 # Clean up apt caches to keep container small
 $SUDO apt-get clean
@@ -68,7 +68,7 @@ echo "Apt install complete."
 #     snap:
 #       - "hello-world"
 #       - "code"   # or other snap names
-SNAPS=( {{- with .packages.ubuntu.snaps }}{{- range . }}"{{ . }}" {{- end }}{{- end }} )
+SNAPS=( {{- with .packages.ubuntu.snaps }}{{- range . }}"{{ . }} " {{- end }}{{- end }} )
 
 if [ ${#SNAPS[@]} -ne 0 ]; then
   if command -v snap >/dev/null 2>&1; then
@@ -100,7 +100,7 @@ fi
 #     vscode_extensions:
 #       - "ms-python.python"
 #       - "esbenp.prettier-vscode"
-VSCODE_EXTENSIONS=( {{- with .packages.ubuntu.vscode }}{{- range . }}"{{ . }}" {{- end }}{{- end }} )
+VSCODE_EXTENSIONS=( {{- with .packages.ubuntu.vscode }}{{- range . }}"{{ . }} " {{- end }}{{- end }} )
 
 if [ ${#VSCODE_EXTENSIONS[@]} -ne 0 ]; then
   # Prefer stable `code`, fall back to `code-insiders` if available.
