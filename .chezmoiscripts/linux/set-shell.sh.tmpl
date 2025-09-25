@@ -1,3 +1,5 @@
+{{- if contains .osid "linux" -}}
+
 #!/bin/sh
 set -eu
 
@@ -35,3 +37,5 @@ printf '%s\n' "Changing login shell to $DESIRED_SHELL (may prompt for sudo passw
 # Use sudo to change the shell for the current user (works on Ubuntu)
 sudo chsh -s "$DESIRED_SHELL" "$USER"
 printf '%s\n' "Done — please log out and log back in (or start a new session) to see the change."
+
+{{ end -}}

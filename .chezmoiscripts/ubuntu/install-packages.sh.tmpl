@@ -1,3 +1,4 @@
+{{- if eq .osid "linux-ubuntu" -}}
 #!/usr/bin/env bash
 # Template script that installs apt packages listed in packages-apt.txt
 set -euo pipefail
@@ -127,3 +128,4 @@ if [ ${#VSCODE_EXTENSIONS[@]} -ne 0 ]; then
     echo "VS Code CLI (code / code-insiders) not found; skipping extension installs: ${VSCODE_EXTENSIONS[*]}"
   fi
 fi
+{{ end -}}
