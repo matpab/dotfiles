@@ -9,25 +9,40 @@ COMPLETION_WAITING_DOTS="true"
 
 plugins=(
   git
+  git-auto-fetch
   dotenv
-  dotnet
-  macos
   zsh-syntax-highlighting
   zsh-autosuggestions
+  zsh-interactive-cd
+  autojump
+  chezmoi
+  safe-paste
+  ssh
+  tldr
+  vscode
   yarn
   nvm
   mvn
-  git-auto-fetch
+  npm
+  dotnet
   docker
   docker-compose
-  npm
+  azure
   terraform
-  textmate
-  xcode
   kubectl
   helm
   kubectx
   kube-ps1
+{{- if eq .osid "darwin" }}
+  macos
+  xcode
+  textmate
+  brew
+{{ end -}}
+{{- if contains .osid "linux" }}
+  sudo
+  ubuntu
+{{ end -}}
 )
 
 fpath=(/usr/local/share/zsh-completions:$fpath)
@@ -76,7 +91,7 @@ prompt_end() {
   CURRENT_BG=''
 }
 
-{{ if eq .chezmoi.os "darwin" -}}
+{{ if eq .osid "darwin" -}}
 
 # The following lines have been added by Docker Desktop to enable Docker CLI completions.
 fpath=(/Users/mpabel/.docker/completions $fpath)

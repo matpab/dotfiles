@@ -15,6 +15,7 @@ packages:
       - "tmux"
       - "uv"
       - "font-meslo-for-powerline"
+      - fzf
     casks:
       - "google-chrome"
       - "devtoys"
@@ -54,5 +55,6 @@ packages:
       - "tmux"
       - "vim"
       - "wget"
+      - fzf
     snaps: []
     vscode: []
