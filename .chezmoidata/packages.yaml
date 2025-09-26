@@ -14,8 +14,7 @@ packages:
       - "tldr"
       - "tmux"
       - "uv"
-      - "font-meslo-for-powerline"
-      - fzf
+      - "fzf"
     casks:
       - "google-chrome"
       - "devtoys"
@@ -23,13 +22,13 @@ packages:
       - "iterm2"
       - "jetbrains-toolbox"
       - "logseq"
-      - "netbird-ui"
       - "nextcloud"
       - "openvpn-connect"
       - "spotify"
       - "textmate"
       - "utm"
       - "visual-studio-code"
+      - "font-meslo-for-powerline"
     vscode:
       - "docker.docker"
       - "github.copilot"
@@ -55,6 +54,6 @@ packages:
       - "tmux"
       - "vim"
       - "wget"
-      - fzf
+      - "fzf"
     snaps: []
     vscode: []
