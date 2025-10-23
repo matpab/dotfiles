@@ -4,6 +4,8 @@ setopt SHARE_HISTORY
 export ZSH="$HOME/.oh-my-zsh"
 
 ZSH_THEME="agnoster"
+ZSH_TMUX_AUTOSTART=true
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=5'
 
 COMPLETION_WAITING_DOTS="true"
 
@@ -29,6 +31,7 @@ plugins=(
   docker-compose
   azure
   terraform
+  tmux
   kubectl
   helm
   kubectx
@@ -67,7 +70,6 @@ export NVM_DIR="$HOME/.nvm"
 
 {{ end -}}
 
-ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=5'
 export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
 
 prompt_dir() {
