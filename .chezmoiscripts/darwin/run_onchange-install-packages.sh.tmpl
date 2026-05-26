@@ -28,4 +28,15 @@ cask {{ . | quote }}
 vscode {{ . | quote }}
 {{ end -}}
 EOF
+
+{{ if hasKey .packages "pi" -}}
+{{ if hasKey .packages.pi "packages" -}}
+if cmd_exists "pi"; then
+{{ range .packages.pi.packages -}}
+    pi package install {{ . | quote }}
+{{ end -}}
+fi
+{{ end -}}
+{{ end -}}
+
 {{ end -}}

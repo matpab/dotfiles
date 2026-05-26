@@ -128,4 +128,27 @@ if [ ${#VSCODE_EXTENSIONS[@]} -ne 0 ]; then
     echo "VS Code CLI (code / code-insiders) not found; skipping extension installs: ${VSCODE_EXTENSIONS[*]}"
   fi
 fi
+
+# --- Pi packages (optional) ---------------------------------------------------
+# Expected chezmoi data path: .packages.pi.packages
+# Example:
+# packages:
+#   pi:
+#     packages:
+#       - "code-analysis"
+#       - "pi-subagents"
+PI_PACKAGES=( {{- with .packages.pi.packages }}{{- range . }}"{{ . }} " {{- end }}{{- end }} )
+
+if [ ${#PI_PACKAGES[@]} -ne 0 ]; then
+  if command -v pi >/dev/null 2>&1; then
+    echo "Installing Pi packages: ${PI_PACKAGES[*]}"
+    for pkg in "${PI_PACKAGES[@]}"; do
+      echo "Installing Pi package: $pkg"
+      pi package install "$pkg" || echo "Failed to install pi package $pkg"
+    done
+  else
+    echo "pi command not found; skipping pi package installs: ${PI_PACKAGES[*]}"
+  fi
+fi
+
 {{ end -}}

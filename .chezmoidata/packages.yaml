@@ -16,6 +16,7 @@ packages:
       - "uv"
       - "fzf"
       - "oven-sh/bun/bun"
+      - "pi-coding-agent"
     casks:
       - "google-chrome"
       - "devtoys"
@@ -30,6 +31,7 @@ packages:
       - "utm"
       - "visual-studio-code"
       - "font-meslo-for-powerline"
+      - "cmux"
     vscode:
       - "docker.docker"
       - "github.copilot-chat"
@@ -48,6 +50,14 @@ packages:
       - "redhat.vscode-yaml"
       - "upstash.context7-mcp"
       - "ms-vscode.vscode-chat-customizations-evaluations"
+  pi:
+    packages:
+      - "pi-subagents"
+      - "pi-mcp-adapter"
+      - "@samfp/pi-memory"
+      - "@gotgenes/pi-permission-system"
+      - "@plannotator/pi-extension"
+      - "@juicesharp/rpiv-ask-user-question"
   ubuntu:
     apt:
       - "autojump"
